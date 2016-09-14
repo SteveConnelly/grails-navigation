@@ -14,7 +14,7 @@ class NavigationTagLib {
      */
     def resources = { attrs ->
         if ((attrs.override != 'true') && !Boolean.valueOf(attrs.override)) {
-            out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"${resource(plugin:'navigation', dir:'css', file:'navigation.css')}\"/>"
+            out << "<asset:stylesheet src=\"navigation.css\"/>"
         }
     }
 
