@@ -1,6 +1,5 @@
-import org.codehaus.groovy.grails.commons.GrailsControllerClass
-import org.codehaus.groovy.grails.commons.GrailsClassUtils
-
+import grails.core.GrailsControllerClass
+import grails.util.GrailsNameUtils
 // @todo subItem sorting
 class NavigationService {
 
@@ -32,7 +31,7 @@ class NavigationService {
             result.action = data
         }
         if (!result.title) {
-            result.title = GrailsClassUtils.getNaturalName(result.action)
+            result.title = GrailsNameUtils.getNaturalName(result.action as String)
         }
         result.controller = controllerName
 
@@ -83,7 +82,7 @@ class NavigationService {
         item.order = src.order
         item.id = src.id
         item.isVisible = (src['isVisible'] == null) ? true : src.isVisible
-        item.title = src.title ?: GrailsClassUtils.getNaturalName(src.action)
+        item.title = src.title ?: GrailsNameUtils.getNaturalName(src.action as String)
         item.params = src.params
 
         calculatePath(src.path, item)
@@ -138,7 +137,7 @@ class NavigationService {
             p.action = controllerGrailsClass.defaultAction
         }
         if (!p.title) {
-            p.title = GrailsClassUtils.getNaturalName(controllerGrailsClass.name)
+            p.title = GrailsNameUtils.getNaturalName(controllerGrailsClass.name)
         }
         doRegisterItem(grp, p)
     }

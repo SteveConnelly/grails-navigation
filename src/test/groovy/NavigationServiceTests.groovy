@@ -1,4 +1,4 @@
-import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
+import org.grails.core.DefaultGrailsControllerClass
 
 class NavigationServiceTests extends GroovyTestCase {
 	static transactional = false
@@ -15,7 +15,7 @@ class NavigationServiceTests extends GroovyTestCase {
 
         assertEquals 1, navigationService.byGroup['*'].size
         def item = navigationService.byGroup['*'][0]
-        assertEquals "Empty", item.title
+        assertEquals "Index", item.title
         assertEquals "index", item.action
     }
 
@@ -79,4 +79,3 @@ class NavigationServiceTests extends GroovyTestCase {
 class EmptyController {
     static navigation = true
 }
-

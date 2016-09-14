@@ -1,19 +1,22 @@
-import grails.test.TagLibUnitTestCase
+import grails.test.mixin.TestFor
+import grails.test.mixin.TestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
+import org.grails.plugins.codecs.HTMLCodec
+import org.grails.taglib.encoder.OutputEncodingStack
+import spock.lang.Specification
 
-class NavigationTagLibTests extends TagLibUnitTestCase {
-    protected void setUp() {
-        super.setUp()
-        loadCodec(org.codehaus.groovy.grails.plugins.codecs.HTMLCodec)
+@TestFor(NavigationTagLib)
+@TestMixin(GrailsUnitTestMixin)
+class NavigationTagLibSpec extends Specification {
+
+    void setup() {
+       mockCodec(HTMLCodec)
     }
-    
-    /*
-    
-    These are commented out because I can't work out why Grails will not use our mocked service
-    ...can't unit test really because we need the createLink tag to work in order to test this stuff
-*/    
-    void testEachItemByController() {
+
+    void "testEachItemByController"() {
+        when:
         tagLib.navigationService = [
-            byGroup: ['tabs': [ 
+            byGroup: ['tabs': [
                     [controller:'dummy', action:'index', path:['dummy', 'index']],
                     [controller:'dummy', action:'get', path:['dummy', 'get']]
                 ]
@@ -28,15 +31,22 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
         tagLib.eachItem([controller:'dummy', group:'tabs'], {
             "Action:${it.action}|Active:${it.active}&"
         })
-        def outcome = tagLib.out.toString().split('&')
-        
-        assertEquals 'Action:index|Active:false', outcome[0]
-        assertEquals 'Action:get|Active:false', outcome[1]
+
+        OutputEncodingStack.OutputProxyWriter output = tagLib.out
+        String outString = ""
+        output.write(outString)
+
+        def outcome = outString.split('&')
+
+        then:
+        'Action:index|Active:false' == outcome[0]
+        'Action:get|Active:false' == outcome[1]
     }
 
-    void testEachItemActiveByPathDeepHit() {
+    void "testEachItemActiveByPathDeepHit"() {
+        when:
         tagLib.navigationService = [
-            byGroup: ['tabs': [ 
+            byGroup: ['tabs': [
                     [controller:'dummy', action:'index', title:'Dummy', path:['dummy', 'index']],
                     [controller:'dummy', action:'get', title:'Get', path:['something', 'else', 'here'],
                         subItems:[ [action:'search', path:['something', 'else', 'here', 'searching']] ]
@@ -55,15 +65,17 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
             "Action:${it.action}|Active:${it.active}|Title:${it.title}&"
         })
         def outcome = tagLib.out.toString().split('&')
-        
-        assertEquals 'Action:index|Active:false|Title:Dummy', outcome[0]
-        assertEquals 'Action:get|Active:true|Title:Get', outcome[1]
-    }
-    
 
-    void testEachItemActiveByPathSubItemHit() {
+        then:
+        'Action:index|Active:false|Title:Dummy' == outcome[0]
+        'Action:get|Active:true|Title:Get' == outcome[1]
+    }
+
+
+    void "testEachItemActiveByPathSubItemHit"() {
+        when:
         tagLib.navigationService = [
-            byGroup: ['tabs': [ 
+            byGroup: ['tabs': [
                     [controller:'dummy', action:'index', title:'Dummy', path:['dummy', 'index']],
                     [controller:'dummy', action:'get', title:'Get', path:['something', 'else', 'here'],
                         subItems:[ [action:'search', path:['something', 'else', 'here', 'searching']] ]
@@ -82,14 +94,16 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
             "Action:${it.action}|Active:${it.active}|Title:${it.title}&"
         })
         def outcome = tagLib.out.toString().split('&')
-        
-        assertEquals 'Action:index|Active:false|Title:Dummy', outcome[0]
-        assertEquals 'Action:get|Active:true|Title:Get', outcome[1]
+
+        then:
+        'Action:index|Active:false|Title:Dummy' == outcome[0]
+        'Action:get|Active:true|Title:Get' == outcome[1]
     }
-    
-    void testEachSubItemActiveByPathDeepHit() {
+
+    void "testEachSubItemActiveByPathDeepHit"() {
+        when:
         tagLib.navigationService = [
-            byGroup: ['tabs': [ 
+            byGroup: ['tabs': [
                     [controller:'dummy', action:'index', title:'Dummy', path:['dummy', 'index']],
                     [controller:'dummy', action:'get', title:'Get', path:['something', 'else', 'here'],
                         subItems:[ [action:'search', path:['something', 'else', 'here', 'searching']]]
@@ -108,13 +122,15 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
             "Action:${it.action}|Active:${it.active}|Title:${it.title}&"
         })
         def outcome = tagLib.out.toString().split('&')
-        
-        assertEquals 'Action:search|Active:true|Title:null', outcome[0]
+
+        then:
+        'Action:search|Active:true|Title:null' == outcome[0]
     }
 
-    void testEachSubItemNotActiveByPathDeepHit() {
+    void "testEachSubItemNotActiveByPathDeepHit"() {
+        when:
         tagLib.navigationService = [
-            byGroup: ['tabs': [ 
+            byGroup: ['tabs': [
                     [controller:'dummy', action:'index', title:'Dummy', path:['dummy', 'index']],
                     [controller:'dummy', action:'get', title:'Get', path:['something', 'else', 'here'],
                         subItems:[ [action:'search', path:['something', 'else', 'here', 'searching']]]
@@ -133,17 +149,19 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
             "Action:${it.action}|Active:${it.active}|Title:${it.title}&"
         })
         def outcome = tagLib.out.toString().split('&')
-        
-        assertEquals 'Action:search|Active:false|Title:null', outcome[0]
+
+        then:
+        'Action:search|Active:false|Title:null' == outcome[0]
     }
 
-    void testRenderSubItems() {
+    void "testRenderSubItems"() {
+        when:
         tagLib.navigationService = [
             byGroup: ['tabs':
-                [ 
+                [
                     [controller:'dummy', action:'index', title:'Dummy', path:['dummy', 'index']],
                     [controller:'dummy', action:'get', title:'Get', path:['dummy', 'get'],
-                        subItems:[ 
+                        subItems:[
                             [action:'search', path:['dummy', 'search']],
                             [action:'test', path:['dummy', 'test']]
                         ]
@@ -163,17 +181,20 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
         def outcome = tagLib.out.toString()
 
         println outcome
-        assertTrue outcome.contains('search')
-        assertTrue outcome.contains('test')
+
+        then:
+        outcome.contains('search')
+        outcome.contains('test')
     }
 
-    void testRenderSubItemsPathInSubItem() {
+    void "testRenderSubItemsPathInSubItem"() {
+        when:
         tagLib.navigationService = [
             byGroup: ['tabs':
-                [ 
+                [
                     [controller:'dummy', action:'index', title:'Dummy', path:['dummy', 'index']],
                     [controller:'dummy', action:'get', title:'Get', path:['dummy', 'get'],
-                        subItems:[ 
+                        subItems:[
                                 [action:'search', path:['dummy', 'search']],
                                 [action:'test', path:['dummy', 'test']]
                         ]
@@ -193,23 +214,29 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
         def outcome = tagLib.out.toString()
 
         println outcome
-        assertTrue outcome.contains('search')
-        assertTrue outcome.contains('test')
+
+        then:
+        outcome.contains('search')
+        outcome.contains('test')
     }
-    
-    void testDoPathsIntersect() {
+
+    void "testDoPathsIntersect"() {
+        when:
         def cases = [
             [a:['dummy', 'test'], b:['dummy'], result: true],
             [a:['dummy', 'test'], b:['dummy', 'search'], result: true],
             [a:['dummy'],         b:['dummy', 'search'], result: true],
             [a:['something'],     b:['dummy', 'search'], result: false]
         ]
+
+        then:
         cases.each { e ->
-            assertEquals "Case ${e} failed", e.result, tagLib.doPathsIntersect(e.a, e.b) 
+            assertEquals "Case ${e} failed", e.result, tagLib.doPathsIntersect(e.a, e.b)
         }
     }
 
-    void testPathShouldBeActive() {
+    void "testPathShouldBeActive"() {
+        when:
         def cases = [
             [itemPath:['dummy'],            currentPath:['dummy', 'x'],      result: true],
             [itemPath:['dummy', 'x'],       currentPath:['dummy', 'x'],      result: true],
@@ -220,20 +247,25 @@ class NavigationTagLibTests extends TagLibUnitTestCase {
             [itemPath:[],                   currentPath:['dummy'],           result: false],
             [itemPath:['something'],        currentPath:['dummy'],           result: false]
         ]
+
+        then:
         cases.each { e ->
-            assertEquals "Case ${e} failed", e.result, tagLib.pathIsActive(e.itemPath, e.currentPath) 
+            assertEquals "Case ${e} failed", e.result, tagLib.pathIsActive(e.itemPath, e.currentPath)
         }
     }
 
-    void testIsPathFullyEncapsulatedBy() {
+    void "testIsPathFullyEncapsulatedBy"() {
+        when:
         def cases = [
             [a:['dummy', 'test'], b:['dummy'], result: false],
             [a:['dummy', 'test'], b:['dummy', 'search'], result: false],
             [a:['dummy'],         b:['dummy', 'search'], result: true],
             [a:['something'],     b:['dummy', 'search'], result: false]
         ]
+
+        then:
         cases.each { e ->
-            assertEquals "Case ${e} failed", e.result, tagLib.isPathFullyEncapsulatedBy(e.a, e.b) 
+            assertEquals "Case ${e} failed", e.result, tagLib.isPathFullyEncapsulatedBy(e.a, e.b)
         }
     }
 }

@@ -1,5 +1,4 @@
-import org.codehaus.groovy.grails.commons.GrailsClassUtils
-import org.codehaus.groovy.grails.commons.ServiceArtefactHandler
+import grails.core.GrailsApplication
 
 class NavigationTagLib {
     static namespace = "nav"
@@ -8,7 +7,7 @@ class NavigationTagLib {
 
     def navigationService
 
-    def grailsApplication
+    GrailsApplication grailsApplication
 
     /**
      * Tag to pull in the CSS
