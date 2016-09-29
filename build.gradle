@@ -39,6 +39,9 @@ dependencyManagement {
     applyMavenExclusions false
 }
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
